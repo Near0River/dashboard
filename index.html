@@ -15,15 +15,9 @@
     background: linear-gradient(180deg, #1b1b32 0%, #0d0d16 100%);
     display: -webkit-flex; display: flex;
     -webkit-flex-direction: column; flex-direction: column;
-    -webkit-justify-content: space-between; justify-content: space-between;
-    padding: 32px 36px;
+    padding: 20px 24px;
   }
-  .top {
-    display: -webkit-flex; display: flex;
-    -webkit-justify-content: space-between; justify-content: space-between;
-    -webkit-align-items: center; align-items: center;
-  }
-  #clock { font-size: 110px; font-weight: 300; letter-spacing: 3px; line-height: 1; text-shadow: 0 4px 24px rgba(120,130,255,0.35); }
+  #clock { font-size: 96px; font-weight: 300; letter-spacing: 3px; line-height: 1; text-shadow: 0 4px 24px rgba(120,130,255,0.35); }
   #date { font-size: 26px; color: #9fa3c4; margin-top: 10px; text-transform: capitalize; letter-spacing: 1px; }
 
   .weather-box {
@@ -35,7 +29,8 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.35);
   }
   .top-right { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
-  #refreshBtn, #settingsBtn {
+  #hdr { margin-bottom: 6px; -webkit-justify-content: flex-end; justify-content: flex-end; }
+  #refreshBtn, #settingsBtn, #widgetBtn, #editBtn {
     width: 72px; height: 72px; border-radius: 36px; margin-left: 16px; border: none; outline: none;
     background: rgba(255,255,255,0.10); color: #fff;
     display: -webkit-flex; display: flex;
@@ -43,8 +38,8 @@
     -webkit-justify-content: center; justify-content: center;
     -webkit-flex-shrink: 0; flex-shrink: 0;
   }
-  #refreshBtn svg, #settingsBtn svg { width: 34px; height: 34px; fill: currentColor; }
-  #refreshBtn:active, #settingsBtn:active { background: #5865f2; }
+  #refreshBtn svg, #settingsBtn svg, #widgetBtn svg, #editBtn svg { width: 34px; height: 34px; fill: currentColor; }
+  #refreshBtn:active, #settingsBtn:active, #widgetBtn:active, #editBtn:active { background: #5865f2; }
   .weather-box svg { width: 40px; height: 40px; fill: #ffd166; margin-right: 16px; -webkit-flex-shrink: 0; flex-shrink: 0; }
 
   .media-box {
@@ -92,18 +87,69 @@
   .controls #playBtn:active { background: #7b86ff; }
   .controls #modeBtn { width: auto; border-radius: 22px; height: 52px; font-size: 18px; font-weight: bold; padding: 0 20px; margin-left: 0; margin-right: 10px; background: rgba(255,255,255,0.14); letter-spacing: 1px; }
 
-  .rcol { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: stretch; align-items: stretch; }
-  .rcol .top-right { -webkit-justify-content: flex-end; justify-content: flex-end; }
-  #cal { margin-top: 14px; min-width: 300px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10); border-radius: 18px; padding: 10px 14px; }
+  #cal { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10); border-radius: 18px; padding: 10px 14px; }
   #cal .ct { font-size: 18px; font-weight: bold; text-transform: capitalize; text-align: center; margin-bottom: 4px; }
   #cal table { width: 100%; border-collapse: collapse; table-layout: fixed; }
   #cal th { font-size: 13px; color: #9fa3c4; font-weight: normal; padding: 2px 0; }
   #cal td { font-size: 16px; text-align: center; height: 29px; color: #e6e7f5; }
   #cal td.su { color: #ff9aa8; }
   #cal td.t span { display: inline-block; width: 28px; height: 28px; line-height: 28px; border-radius: 14px; background: #5865f2; color: #fff; font-weight: bold; }
-  #news { margin-top: 26px; max-width: 620px; opacity: 1; -webkit-transition: opacity 0.3s; transition: opacity 0.3s; }
+  #news { opacity: 1; -webkit-transition: opacity 0.3s; transition: opacity 0.3s; }
   #news .lbl { font-size: 14px; letter-spacing: 3px; color: #7b86ff; font-weight: bold; margin-bottom: 6px; }
   #newsText { font-size: 22px; line-height: 1.3; color: #d6d8f0; height: 58px; overflow: hidden; }
+
+  /* ---- Griglia widget ---- */
+  #grid {
+    -webkit-flex: 1; flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap;
+    -webkit-align-content: flex-start; align-content: flex-start; margin: 0 -8px;
+  }
+  .wd { display: -webkit-flex; display: flex; position: relative; padding: 8px; width: 100%; }
+  .wd.s1 { width: 33.333%; } .wd.s2 { width: 66.666%; } .wd.s3 { width: 100%; }
+  .wd > *:not(.ctl) { -webkit-flex: 1; flex: 1; min-width: 0; }
+  .wd.s1 #clock { font-size: 56px; letter-spacing: 1px; }
+  .wd.s1 .weather-box { font-size: 22px; padding: 14px; }
+  .wd:not(.s3) .media-box { -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: stretch; align-items: stretch; }
+  .wd:not(.s3) .controls { margin-top: 14px; -webkit-justify-content: center; justify-content: center; }
+  .wc { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10); border-radius: 22px; padding: 18px 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); overflow: hidden; }
+  .wc .lb { font-size: 14px; letter-spacing: 3px; color: #7b86ff; font-weight: bold; margin-bottom: 8px; }
+  .wc .tx { font-size: 22px; line-height: 1.35; color: #d6d8f0; white-space: pre-wrap; max-height: 110px; overflow: hidden; }
+  .ctl {
+    display: none; position: absolute; left: 12px; right: 12px; top: 12px; z-index: 20;
+    background: rgba(0,0,0,0.8); border-radius: 16px; padding: 6px;
+    -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center;
+    font-size: 16px; color: #fff;
+  }
+  body.edit .ctl { display: -webkit-flex; display: flex; }
+  .ctl span { margin: 0 8px; }
+  .ctl button { width: 50px; height: 50px; margin: 0 3px; border: none; outline: none; border-radius: 25px; font-size: 22px; color: #fff; background: rgba(255,255,255,0.18); }
+  .ctl .x { background: #c0392b; }
+  body.edit .wd { outline: 2px dashed rgba(255,255,255,0.35); outline-offset: -4px; }
+  #ebar { display: none; -webkit-align-items: center; align-items: center; -webkit-flex-wrap: wrap; flex-wrap: wrap; padding: 6px 0; font-size: 18px; color: #9fa3c4; }
+  body.edit #ebar { display: -webkit-flex; display: flex; }
+  #ebar button { font-size: 18px; padding: 10px 16px; margin: 4px 8px 4px 0; border: none; outline: none; border-radius: 12px; color: #fff; background: rgba(255,255,255,0.14); }
+  #ebar #eDone { background: #5865f2; }
+
+  /* Widget (pannello completo) */
+  .tabs { display: -webkit-flex; display: flex; margin-bottom: 18px; }
+  .tab { -webkit-flex: 1; flex: 1; font-size: 19px; font-weight: bold; padding: 12px 6px; border: none; outline: none; color: #fff; background: rgba(255,255,255,0.10); margin-right: 8px; border-radius: 12px; }
+  .tab.sel { background: #5865f2; }
+  #wClose { -webkit-flex: none; flex: none; width: 52px; margin-right: 0; }
+  .wt { display: none; }
+  #qLbl, #mLbl { font-size: 16px; letter-spacing: 3px; color: #7b86ff; font-weight: bold; margin-bottom: 8px; }
+  #qText { font-size: 30px; line-height: 1.35; min-height: 150px; padding: 6px 2px; }
+  #mLbl { margin-top: 24px; }
+  #mOut { font-size: 34px; font-weight: bold; line-height: 1.25; min-height: 90px; }
+  #noteArea { width: 100%; height: 240px; font-size: 22px; padding: 14px; border-radius: 12px; border: none; outline: none; background: rgba(255,255,255,0.10); color: #fff; resize: none; }
+  #cExp { font-size: 18px; color: #9fa3c4; text-align: right; min-height: 24px; }
+  #cOut { font-size: 48px; text-align: right; margin-bottom: 12px; overflow: hidden; white-space: nowrap; }
+  .krow { display: -webkit-flex; display: flex; margin-bottom: 10px; }
+  .kb { -webkit-flex: 1; flex: 1; font-size: 28px; padding: 16px 0; border: none; outline: none; color: #fff; background: rgba(255,255,255,0.12); border-radius: 14px; margin-right: 10px; }
+  .krow .kb:last-child { margin-right: 0; }
+  .kb.o { background: rgba(88,101,242,0.45); }
+  .kb.e { background: #5865f2; }
+  .kb.z { -webkit-flex: 2.1; flex: 2.1; }
+  .kb:active { opacity: 0.7; }
 
   /* Velo scuro per la luminosita' programmata */
   #dim { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: #000; opacity: 0; pointer-events: none; z-index: 999; }
@@ -112,13 +158,13 @@
   #ytBox { position: fixed; right: 0; bottom: 0; width: 200px; height: 200px; opacity: 0.01; pointer-events: none; z-index: 0; }
 
   /* Pannello impostazioni */
-  #panel {
+  #panel, #wpanel {
     display: none; position: fixed; left: 0; top: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.75); z-index: 500;
     -webkit-align-items: center; align-items: center;
     -webkit-justify-content: center; justify-content: center;
   }
-  #panel.open { display: -webkit-flex; display: flex; }
+  #panel.open, #wpanel.open { display: -webkit-flex; display: flex; }
   .card {
     width: 92%; max-width: 640px; max-height: 92%;
     overflow-y: auto; -webkit-overflow-scrolling: touch;
@@ -139,7 +185,7 @@
   .row > div:last-child { margin-right: 0; }
   .check { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; font-size: 22px; margin-top: 22px; color: #f5f5f7; }
   .check input { width: 30px; height: 30px; margin-right: 14px; }
-  #swatches { display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; }
+  .swrow, #swatches { display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; }
   .sw { width: 60px; height: 60px; border-radius: 30px; margin: 0 12px 12px 0; border: 4px solid transparent; outline: none; }
   .sw.sel { border-color: #fff; }
   #fMsg { color: #ff8a8a; font-size: 18px; margin-top: 14px; min-height: 22px; }
@@ -150,50 +196,79 @@
 </style>
 </head>
 <body>
-  <div class="top">
-    <div>
-      <div id="clock">00:00</div>
-      <div id="date">--</div>
-      <div id="news"><div class="lbl">ULTIME NOTIZIE</div><div id="newsText">Caricamento...</div></div>
+  <div id="hdr" class="top-right">
+    <button id="widgetBtn" onclick="openWidgets()" aria-label="Widget">
+      <svg viewBox="0 0 24 24"><path d="M13 13v8h8v-8h-8zM3 21h8v-8H3v8zM3 3v8h8V3H3zm13.66-1.31L11 7.34 16.66 13l5.66-5.66-5.66-5.65z"/></svg>
+    </button>
+    <button id="editBtn" onclick="toggleEdit()" aria-label="Modifica widget">
+      <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+    </button>
+    <button id="settingsBtn" onclick="openSettings()" aria-label="Impostazioni">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7 7 0 0 0-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.48.48 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>
+    </button>
+    <button id="refreshBtn" onclick="refreshPage()" aria-label="Aggiorna pagina">
+      <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z"/></svg>
+    </button>
+  </div>
+
+  <div id="ebar">
+    <span>Aggiungi:&nbsp;</span><span id="addList"></span>
+    <button onclick="resetLayout()">Ripristina</button>
+    <button id="eDone" onclick="toggleEdit()">Fine</button>
+  </div>
+
+  <div id="grid">
+    <div class="wd" id="w-clock">
+      <div class="wc"><div id="clock">00:00</div><div id="date">--</div></div>
     </div>
-    <div class="rcol">
-    <div class="top-right">
+    <div class="wd" id="w-weather">
       <div class="weather-box">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M11 1h2v3h-2zM11 20h2v3h-2zM1 11h3v2H1zM20 11h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zM16.3 17.7l1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/></svg>
         <span id="weather">Caricamento...</span>
       </div>
-      <button id="settingsBtn" onclick="openSettings()" aria-label="Impostazioni">
-        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7 7 0 0 0-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.48.48 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>
-      </button>
-      <button id="refreshBtn" onclick="refreshPage()" aria-label="Aggiorna pagina">
-        <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z"/></svg>
-      </button>
     </div>
-    <div id="cal"></div>
+    <div class="wd" id="w-news">
+      <div id="news" class="wc"><div class="lbl">ULTIME NOTIZIE</div><div id="newsText">Caricamento...</div></div>
     </div>
-  </div>
-
-  <div class="media-box">
-    <div class="track">
-      <div class="cover">
-        <svg viewBox="0 0 24 24"><path d="M9 3v11.3A3.5 3.5 0 1 0 11 17.5V7h7V3z"/></svg>
+    <div class="wd" id="w-cal">
+      <div id="cal"></div>
+    </div>
+    <div class="wd" id="w-quote">
+      <div class="wc" onclick="tileOpen('quote')"><div class="lb" id="qmL">FRASE</div><div class="tx" id="qmT"></div></div>
+    </div>
+    <div class="wd" id="w-movie">
+      <div class="wc" onclick="tileOpen('movie')"><div class="lb" id="mmL">FILM/SERIE</div><div class="tx" id="mmT"></div></div>
+    </div>
+    <div class="wd" id="w-notes">
+      <div class="wc" onclick="tileOpen('notes')"><div class="lb">NOTE</div><div class="tx" id="nmT"></div></div>
+    </div>
+    <div class="wd" id="w-calc">
+      <div class="wc" onclick="tileOpen('calc')"><div class="lb">CALCOLATRICE</div><div class="tx">Tocca per aprire</div></div>
+    </div>
+    <div class="wd" id="w-media">
+      <div class="media-box">
+        <div class="track">
+          <div class="cover">
+            <svg viewBox="0 0 24 24"><path d="M9 3v11.3A3.5 3.5 0 1 0 11 17.5V7h7V3z"/></svg>
+          </div>
+          <div class="track-info">
+            <div id="title">Nessun brano</div>
+            <div id="artist">Avvia la musica sul PC</div>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="modeBtn" onclick="toggleMode()">PC</button>
+          <button onclick="sendCmd('previous')" aria-label="Precedente">
+            <svg viewBox="0 0 24 24"><path d="M6 6h2.5v12H6zM9.5 12l9 6.5v-13z"/></svg>
+          </button>
+          <button id="playBtn" onclick="sendCmd('play-pause')" aria-label="Play/Pausa">
+            <svg viewBox="0 0 24 24"><path d="M2 5.5l9 6.5-9 6.5z"/><path d="M13 5.5h3.5v13H13zM18.5 5.5H22v13h-3.5z"/></svg>
+          </button>
+          <button onclick="sendCmd('next')" aria-label="Successivo">
+            <svg viewBox="0 0 24 24"><path d="M15.5 6H18v12h-2.5zM5.5 5.5v13l9-6.5z"/></svg>
+          </button>
+        </div>
       </div>
-      <div class="track-info">
-        <div id="title">Nessun brano</div>
-        <div id="artist">Avvia la musica sul PC</div>
-      </div>
-    </div>
-    <div class="controls">
-      <button id="modeBtn" onclick="toggleMode()">PC</button>
-      <button onclick="sendCmd('previous')" aria-label="Precedente">
-        <svg viewBox="0 0 24 24"><path d="M6 6h2.5v12H6zM9.5 12l9 6.5v-13z"/></svg>
-      </button>
-      <button id="playBtn" onclick="sendCmd('play-pause')" aria-label="Play/Pausa">
-        <svg viewBox="0 0 24 24"><path d="M2 5.5l9 6.5-9 6.5z"/><path d="M13 5.5h3.5v13H13zM18.5 5.5H22v13h-3.5z"/></svg>
-      </button>
-      <button onclick="sendCmd('next')" aria-label="Successivo">
-        <svg viewBox="0 0 24 24"><path d="M15.5 6H18v12h-2.5zM5.5 5.5v13l9-6.5z"/></svg>
-      </button>
     </div>
   </div>
 
@@ -241,6 +316,15 @@
       <label for="fFont">Font della pagina</label>
       <select id="fFont"></select>
 
+      <label>Colore del testo</label>
+      <div class="swrow" id="swText"></div>
+      <label>Sfondo dei pulsanti</label>
+      <div class="swrow" id="swBtn"></div>
+      <label>Bordo dei pulsanti</label>
+      <div class="swrow" id="swBorder"></div>
+      <label>Colore di evidenza (play, giorno attuale)</label>
+      <div class="swrow" id="swAccent"></div>
+
       <label for="fNews">Notizie (indirizzo feed RSS)</label>
       <input type="text" id="fNews" placeholder="Vuoto = nessuna notizia" autocomplete="off">
       <div class="hint">Predefinito: ANSA. Puoi usare il feed RSS di un altro giornale.</div>
@@ -252,6 +336,53 @@
       <div class="btns">
         <button id="cancelBtn" onclick="closeSettings()">Annulla</button>
         <button id="saveBtn" onclick="saveSettings()">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="wpanel">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab" id="tab-quote" onclick="showTab('quote')">Frase</button>
+        <button class="tab" id="tab-notes" onclick="showTab('notes')">Note</button>
+        <button class="tab" id="tab-calc" onclick="showTab('calc')">Calcolatrice</button>
+        <button class="tab" id="tab-movie" onclick="showTab('movie')">Film/Serie</button>
+        <button class="tab" id="wClose" onclick="closeWidgets()">&#10005;</button>
+      </div>
+
+      <div class="wt" id="wt-quote">
+        <div id="qLbl"></div>
+        <div id="qText"></div>
+        <div class="btns"><button onclick="newQuote()">Un'altra frase</button></div>
+      </div>
+
+      <div class="wt" id="wt-notes">
+        <textarea id="noteArea" placeholder="Scrivi qui le tue note..."></textarea>
+        <div class="btns">
+          <button onclick="clearNotes()">Cancella</button>
+          <button onclick="downloadNotes()">Scarica .txt</button>
+        </div>
+      </div>
+
+      <div class="wt" id="wt-calc">
+        <div id="cExp"></div>
+        <div id="cOut">0</div>
+        <div id="cKeys"></div>
+      </div>
+
+      <div class="wt" id="wt-movie">
+        <div class="row">
+          <div><label for="mType">Tipo</label>
+            <select id="mType" onchange="mShow(false)"><option value="film">Film</option><option value="serie">Serie TV</option></select></div>
+          <div><label for="mGenre">Genere</label>
+            <select id="mGenre" onchange="mShow(false)"></select></div>
+        </div>
+        <div id="mLbl"></div>
+        <div id="mOut"></div>
+        <div class="btns">
+          <button onclick="mShow(false)">Del giorno</button>
+          <button onclick="mShow(true)">Casuale</button>
+        </div>
       </div>
     </div>
   </div>
@@ -286,7 +417,7 @@
   ];
   var MODES = ['pc', 'tablet', 'yt'];
 
-  var DEFAULTS = { city: '', lat: LAT, lon: LON, theme: 0, dimOn: false, dayB: 100, nightB: 30, nightFrom: 22, nightTo: 7, ytList: 'PLdga5mgkmErO8YwmbefS47kRgvPg5XGpL', cal: true, font: 0, news: 'https://www.ansa.it/sito/ansait_rss.xml' };
+  var DEFAULTS = { city: '', lat: LAT, lon: LON, theme: 0, dimOn: false, dayB: 100, nightB: 30, nightFrom: 22, nightTo: 7, ytList: 'PLdga5mgkmErO8YwmbefS47kRgvPg5XGpL', cal: true, cText: '#f5f5f7', cBtn: 'rgba(255,255,255,0.10)', cBorder: 'transparent', cAccent: '#5865f2', mvType: 'film', mvGenre: 'Qualsiasi', font: 0, news: 'https://www.ansa.it/sito/ansait_rss.xml' };
   var cfg = loadCfg();
 
   var busy = false;
@@ -345,6 +476,365 @@
     }
     box.innerHTML = h + '</table>';
   }
+
+  // ---- Colori personalizzati ----
+  var COLORS = {
+    cText: ['#f5f5f7', '#8fd3ff', '#7dffb2', '#ffe27a', '#ffb066', '#ff9fcb', '#c3a6ff'],
+    cBtn: ['rgba(255,255,255,0.10)', 'rgba(0,0,0,0.40)', 'rgba(88,101,242,0.35)', 'rgba(46,204,113,0.30)', 'rgba(255,94,94,0.30)', 'rgba(180,100,255,0.30)', 'rgba(255,255,255,0.28)'],
+    cBorder: ['transparent', '#ffffff', '#8fd3ff', '#7dffb2', '#ffe27a', '#ff9fcb', '#ffb066'],
+    cAccent: ['#5865f2', '#2ecc71', '#ff9f43', '#ff6b9d', '#3ec1f3', '#ff5e5e', '#b57cff']
+  };
+  var COLOR_ROWS = [['swText', 'cText'], ['swBtn', 'cBtn'], ['swBorder', 'cBorder'], ['swAccent', 'cAccent']];
+  var tmpC = {};
+
+  function buildColorRows() {
+    for (var r = 0; r < COLOR_ROWS.length; r++) {
+      (function(boxId, key) {
+        var box = $(boxId), list = COLORS[key];
+        for (var i = 0; i < list.length; i++) {
+          (function(v) {
+            var b = document.createElement('button');
+            b.className = 'sw';
+            b._v = v;
+            if (v === 'transparent') { b.style.borderStyle = 'dashed'; b.style.borderColor = '#7c80a0'; }
+            else { b.style.background = v; }
+            b.onclick = function() { tmpC[key] = v; markColors(); };
+            box.appendChild(b);
+          })(list[i]);
+        }
+      })(COLOR_ROWS[r][0], COLOR_ROWS[r][1]);
+    }
+  }
+
+  function markColors() {
+    for (var r = 0; r < COLOR_ROWS.length; r++) {
+      var kids = $(COLOR_ROWS[r][0]).getElementsByTagName('button');
+      for (var i = 0; i < kids.length; i++) {
+        var sel = kids[i]._v === tmpC[COLOR_ROWS[r][1]];
+        kids[i].className = 'sw' + (sel ? ' sel' : '');
+        if (kids[i]._v === 'transparent') { kids[i].style.borderColor = sel ? '#fff' : '#7c80a0'; }
+      }
+    }
+  }
+
+  function applyColors() {
+    var T = cfg.cText, B = cfg.cBtn, BR = cfg.cBorder, A = cfg.cAccent, c = '';
+    if (T !== '#f5f5f7') {
+      c += 'body,#clock,#title,.weather-box,#cal td,#cal .ct,#newsText,.wc .tx{color:' + T + '}';
+      c += '#date,#artist,#cal th{color:' + T + ';opacity:0.65}';
+    }
+    c += '.controls button,#refreshBtn,#settingsBtn,#widgetBtn,#editBtn{background:' + B + ';border:2px solid ' + BR + ';color:' + T + '}';
+    c += '.controls #modeBtn{background:' + B + ';border:2px solid ' + BR + ';color:' + T + '}';
+    c += '.controls #playBtn{background:' + A + '}';
+    c += '.controls button:active,#refreshBtn:active,#settingsBtn:active,#widgetBtn:active,#editBtn:active{background:' + A + '}';
+    c += '.controls #playBtn:active{background:' + A + ';opacity:0.75}';
+    c += '.cover{background:' + A + '}#news .lbl,#qLbl,#mLbl,.wc .lb{color:' + A + '}#cal td.t span{background:' + A + '}';
+    c += '.btns #saveBtn,.tab.sel,.kb.e,#ebar #eDone{background:' + A + '}';
+    var st = $('dynStyle');
+    if (!st) { st = document.createElement('style'); st.id = 'dynStyle'; document.getElementsByTagName('head')[0].appendChild(st); }
+    st.textContent = c;
+  }
+
+  // ---- Gestione widget (riordina, ridimensiona, rimuovi, aggiungi) ----
+  var WNAMES = { clock: 'Orologio', weather: 'Meteo', news: 'Notizie', cal: 'Calendario', media: 'Musica', quote: 'Frase', notes: 'Note', calc: 'Calcolatrice', movie: 'Film/Serie' };
+  // [id, dimensione 1-3 (1/3, 2/3, intera), visibile]
+  var WDEF = [['clock', 2, 1], ['weather', 1, 1], ['news', 2, 1], ['cal', 1, 1], ['quote', 1, 1], ['movie', 1, 1], ['notes', 1, 1], ['media', 3, 1], ['calc', 1, 0]];
+  var LAYOUT = [];
+
+  function loadLayout() {
+    var s = [], seen = {}, i, o;
+    try { s = JSON.parse(localStorage.getItem('layout') || '[]'); } catch (e) {}
+    LAYOUT = [];
+    for (i = 0; i < s.length; i++) {
+      o = s[i];
+      if (o && WNAMES.hasOwnProperty(o.id) && !seen[o.id]) {
+        seen[o.id] = 1;
+        LAYOUT.push({ id: o.id, s: Math.min(3, Math.max(1, (o.s | 0) || 1)), on: o.on ? 1 : 0 });
+      }
+    }
+    for (i = 0; i < WDEF.length; i++) {
+      if (!seen[WDEF[i][0]]) { LAYOUT.push({ id: WDEF[i][0], s: WDEF[i][1], on: WDEF[i][2] }); }
+    }
+  }
+  function saveLayout() { try { localStorage.setItem('layout', JSON.stringify(LAYOUT)); } catch (e) {} }
+
+  function renderLayout() {
+    var i, g = $('grid'), a = $('addList'), w;
+    for (i = 0; i < LAYOUT.length; i++) {
+      w = $('w-' + LAYOUT[i].id);
+      w.className = 'wd s' + LAYOUT[i].s;
+      w.style.display = LAYOUT[i].on ? '' : 'none';
+      g.appendChild(w);
+    }
+    a.innerHTML = '';
+    for (i = 0; i < LAYOUT.length; i++) {
+      if (!LAYOUT[i].on) {
+        (function(id) {
+          var b = document.createElement('button');
+          b.textContent = '+ ' + WNAMES[id];
+          b.onclick = function() { widgetOp(id, 'add'); };
+          a.appendChild(b);
+        })(LAYOUT[i].id);
+      }
+    }
+    if (!a.childNodes.length) { a.textContent = 'tutti i widget sono visibili'; }
+  }
+
+  function widgetOp(id, k) {
+    var i, n = 0, j, d, it;
+    for (i = 0; i < LAYOUT.length; i++) { if (LAYOUT[i].id === id) { n = i; } }
+    it = LAYOUT[n];
+    if (k === 'add') { it.on = 1; LAYOUT.splice(n, 1); LAYOUT.push(it); }
+    else if (k === 'del') { it.on = 0; }
+    else if (k === 'big') { it.s = Math.min(3, it.s + 1); }
+    else if (k === 'small') { it.s = Math.max(1, it.s - 1); }
+    else {
+      d = k === 'left' ? -1 : 1;
+      for (j = n + d; j >= 0 && j < LAYOUT.length; j += d) {
+        if (LAYOUT[j].on) { LAYOUT[n] = LAYOUT[j]; LAYOUT[j] = it; break; }
+      }
+    }
+    saveLayout(); renderLayout();
+  }
+
+  function buildLayout() {
+    var defs = [['\u25c0', 'left'], ['\u2212', 'small'], ['+', 'big'], ['\u25b6', 'right'], ['\u2715', 'del', 'x']], id;
+    for (id in WNAMES) {
+      if (!WNAMES.hasOwnProperty(id)) { continue; }
+      (function(wid) {
+        var w = $('w-' + wid), ctl = document.createElement('div'), sp = document.createElement('span'), k;
+        ctl.className = 'ctl';
+        sp.textContent = WNAMES[wid];
+        ctl.appendChild(sp);
+        for (k = 0; k < defs.length; k++) {
+          (function(d) {
+            var b = document.createElement('button');
+            if (d[2]) { b.className = d[2]; }
+            b.textContent = d[0];
+            b.onclick = function() { widgetOp(wid, d[1]); };
+            ctl.appendChild(b);
+          })(defs[k]);
+        }
+        w.insertBefore(ctl, w.firstChild);
+      })(id);
+    }
+    loadLayout();
+    renderLayout();
+  }
+
+  function isEdit() { return /edit/.test(document.body.className); }
+  function toggleEdit() { document.body.className = isEdit() ? '' : 'edit'; }
+  function resetLayout() { try { localStorage.removeItem('layout'); } catch (e) {} loadLayout(); renderLayout(); }
+  function tileOpen(tab) { if (!isEdit()) { wTab = tab; openWidgets(); } }
+
+  // ---- Widget ----
+  var QUOTES = [
+    "Ogni grande risultato comincia con la decisione di provarci.",
+    "Un passo alla volta \u00e8 comunque un passo avanti.",
+    "Oggi \u00e8 un buon giorno per iniziare.",
+    "Non devi essere perfetto, devi solo essere costante.",
+    "Le difficolt\u00e0 di oggi sono la forza di domani.",
+    "Credi nel tuo ritmo: arrivare tardi \u00e8 meglio che non partire.",
+    "Fai oggi qualcosa di cui il te di domani ti ringrazier\u00e0.",
+    "Il coraggio non \u00e8 assenza di paura, \u00e8 andare avanti nonostante lei.",
+    "Piccoli progressi ogni giorno portano a grandi cambiamenti.",
+    "Respira, concentrati, riparti.",
+    "Sbagliare significa che ci stai provando.",
+    "La disciplina \u00e8 fare ci\u00f2 che va fatto anche quando non ne hai voglia.",
+    "Sorridi: \u00e8 il modo pi\u00f9 semplice per cambiare la giornata.",
+    "Non aspettare il momento giusto: costruiscilo.",
+    "Ogni tramonto \u00e8 la promessa di una nuova alba.",
+    "Sei pi\u00f9 forte di quanto pensi.",
+    "Concentrati su ci\u00f2 che puoi controllare.",
+    "Chi smette di imparare smette di crescere.",
+    "Una giornata storta non fa una vita storta.",
+    "Il momento migliore per cominciare era ieri, il secondo migliore \u00e8 adesso."
+  ];
+  var MOVIES = {
+    film: {
+      Azione: ["Mad Max: Fury Road (2015)", "Die Hard - Trappola di cristallo (1988)", "John Wick (2014)", "Mission: Impossible - Fallout (2018)", "Il gladiatore (2000)", "Il cavaliere oscuro (2008)", "Matrix (1999)", "Casino Royale (2006)"],
+      Commedia: ["Una notte da leoni (2009)", "Quasi amici (2011)", "Benvenuti al Sud (2010)", "Perfetti sconosciuti (2016)", "Little Miss Sunshine (2006)", "Ritorno al futuro (1985)", "Johnny Stecchino (1991)", "Ghostbusters (1984)"],
+      Drammatico: ["Le ali della libert\u00e0 (1994)", "Forrest Gump (1994)", "Il pianista (2002)", "La vita \u00e8 bella (1997)", "Il padrino (1972)", "Schindler's List (1993)", "Whiplash (2014)", "Green Book (2018)"],
+      Fantascienza: ["Interstellar (2014)", "Blade Runner 2049 (2017)", "Arrival (2016)", "Inception (2010)", "Alien (1979)", "Dune (2021)", "Ex Machina (2014)", "The Martian (2015)"],
+      Horror: ["Shining (1980)", "Hereditary (2018)", "Get Out (2017)", "L'esorcista (1973)", "A Quiet Place (2018)", "Psycho (1960)", "It (2017)", "Midsommar (2019)"],
+      Thriller: ["Se7en (1995)", "Il silenzio degli innocenti (1991)", "Prisoners (2013)", "Gone Girl (2014)", "Zodiac (2007)", "Shutter Island (2010)", "Memento (2000)", "I soliti sospetti (1995)"],
+      Animazione: ["Coco (2017)", "Inside Out (2015)", "La città incantata (2001)", "Il re leone (1994)", "Toy Story (1995)", "Up (2009)", "Spider-Man: Un nuovo universo (2018)", "Alla ricerca di Nemo (2003)"],
+      Romantico: ["Notting Hill (1999)", "La La Land (2016)", "Titanic (1997)", "Pretty Woman (1990)", "Prima dell'alba (1995)", "Il favoloso mondo di Am\u00e9lie (2001)", "Le pagine della nostra vita (2004)", "Harry, ti presento Sally (1989)"],
+      Documentario: ["Free Solo (2018)", "Il mio amico in fondo al mare (2020)", "Senna (2010)", "Sugar Man (2012)", "Man on Wire (2008)", "Super Size Me (2004)", "The Social Dilemma (2020)", "Bowling a Columbine (2002)"]
+    },
+    serie: {
+      Azione: ["24 (2001)", "Jack Ryan (2018)", "Reacher (2022)", "Vikings (2013)", "Arrow (2012)", "The Boys (2019)", "Banshee (2013)", "Daredevil (2015)"],
+      Commedia: ["Friends (1994)", "The Office (2005)", "Brooklyn Nine-Nine (2013)", "Parks and Recreation (2009)", "How I Met Your Mother (2005)", "The Big Bang Theory (2007)", "Modern Family (2009)", "Fleabag (2016)"],
+      Drammatico: ["Breaking Bad (2008)", "Succession (2018)", "The Crown (2016)", "Mad Men (2007)", "This Is Us (2016)", "The Wire (2002)", "Better Call Saul (2015)", "Chernobyl (2019)"],
+      Fantascienza: ["Black Mirror (2011)", "Stranger Things (2016)", "The Expanse (2015)", "Dark (2017)", "Westworld (2016)", "Severance (2022)", "Fringe (2008)", "Foundation (2021)"],
+      Horror: ["The Haunting of Hill House (2018)", "American Horror Story (2011)", "Midnight Mass (2021)", "Bates Motel (2013)", "Penny Dreadful (2014)", "The Walking Dead (2010)", "Channel Zero (2016)", "Marianne (2019)"],
+      Thriller: ["Mindhunter (2017)", "True Detective (2014)", "Sherlock (2010)", "Mare of Easttown (2021)", "Dexter (2006)", "La casa di carta (2017)", "Ozark (2017)", "Gomorra (2014)"],
+      Animazione: ["Avatar - La leggenda di Aang (2005)", "Rick and Morty (2013)", "BoJack Horseman (2014)", "Arcane (2021)", "I Simpson (1989)", "Bluey (2018)", "Death Note (2006)", "L'attacco dei giganti (2013)"],
+      Romantico: ["Bridgerton (2020)", "Normal People (2020)", "Outlander (2014)", "Gilmore Girls (2000)", "Heartstopper (2022)", "Jane the Virgin (2014)", "One Day (2024)", "Emily in Paris (2020)"],
+      Documentario: ["Our Planet (2019)", "Making a Murderer (2015)", "Tiger King (2020)", "Chef's Table (2015)", "Planet Earth (2006)", "Cosmos (2014)", "The Last Dance (2020)", "Wild Wild Country (2018)"]
+    }
+  };
+  var TABS = ['quote', 'notes', 'calc', 'movie'];
+  var wTab = 'quote', qIdx = 0, qDaily = true, mLast = '';
+  var cc = { cur: '0', acc: null, op: null, fresh: false };
+
+  function dayNum() { var d = new Date(); return d.getFullYear() * 372 + d.getMonth() * 31 + d.getDate(); }
+
+  function showQuote() {
+    $('qLbl').textContent = qDaily ? 'FRASE DEL GIORNO' : 'FRASE CASUALE';
+    $('qText').textContent = QUOTES[qIdx];
+    $('qmL').textContent = $('qLbl').textContent;
+    $('qmT').textContent = QUOTES[qIdx];
+  }
+  function newQuote() {
+    var n;
+    do { n = Math.floor(Math.random() * QUOTES.length); } while (n === qIdx && QUOTES.length > 1);
+    qIdx = n; qDaily = false; showQuote();
+  }
+
+  function mPool() {
+    var t = $('mType').value, g = $('mGenre').value, p = [], k;
+    if (g === 'Qualsiasi') {
+      for (k in MOVIES[t]) { if (MOVIES[t].hasOwnProperty(k)) { p = p.concat(MOVIES[t][k]); } }
+    } else { p = MOVIES[t][g]; }
+    return p;
+  }
+  function mShow(random) {
+    var p = mPool(), i, j, h = 0, str = $('mType').value + $('mGenre').value;
+    if (random) {
+      do { i = Math.floor(Math.random() * p.length); } while (p[i] === mLast && p.length > 1);
+    } else {
+      for (j = 0; j < str.length; j++) { h += str.charCodeAt(j); }
+      i = (dayNum() + h) % p.length;
+    }
+    mLast = p[i];
+    $('mLbl').textContent = random ? 'SCELTA CASUALE' : 'CONSIGLIO DEL GIORNO';
+    $('mOut').textContent = p[i];
+    $('mmL').textContent = ($('mType').value === 'film' ? 'FILM' : 'SERIE TV') + ' \u2022 ' + $('mGenre').value.toUpperCase();
+    $('mmT').textContent = p[i];
+    cfg.mvType = $('mType').value; cfg.mvGenre = $('mGenre').value; saveCfg();
+  }
+
+  function noteMini() { $('nmT').textContent = $('noteArea').value || 'Nessuna nota. Tocca per scrivere.'; }
+
+  function downloadNotes() {
+    var t = '\ufeff' + $('noteArea').value.replace(/\r?\n/g, '\r\n');
+    var d = new Date();
+    var name = 'note-' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '.txt';
+    try {
+      if (window.Blob && window.URL && URL.createObjectURL) {
+        var u = URL.createObjectURL(new Blob([t], { type: 'text/plain;charset=utf-8' }));
+        var a = document.createElement('a');
+        a.href = u; a.download = name;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(u); }, 4000);
+        return;
+      }
+    } catch (e) {}
+    window.open('data:text/plain;charset=utf-8,' + encodeURIComponent(t));
+  }
+  function clearNotes() {
+    if (!$('noteArea').value || !confirm('Cancellare tutte le note?')) { return; }
+    $('noteArea').value = '';
+    try { localStorage.setItem('notes', ''); } catch (e) {}
+    noteMini();
+  }
+
+  function fmtNum(n) { return String(parseFloat(n.toPrecision(12))); }
+  function calcShow() {
+    $('cOut').textContent = cc.cur.replace('.', ',');
+    $('cExp').textContent = (cc.acc !== null && cc.op) ? fmtNum(cc.acc).replace('.', ',') + ' ' + cc.op : '';
+  }
+  function calcCompute() {
+    var a = cc.acc, b = parseFloat(cc.cur), r;
+    if (cc.op === '+') { r = a + b; }
+    else if (cc.op === '\u2212') { r = a - b; }
+    else if (cc.op === '\u00d7') { r = a * b; }
+    else if (cc.op === '\u00f7') { r = b === 0 ? NaN : a / b; }
+    else { return; }
+    if (!isFinite(r)) { cc = { cur: 'Errore', acc: null, op: null, fresh: true }; return; }
+    cc.cur = fmtNum(r);
+  }
+  function calcKey(k) {
+    if (cc.cur === 'Errore' && k !== 'C') { cc = { cur: '0', acc: null, op: null, fresh: false }; }
+    if (k >= '0' && k <= '9' && k.length === 1) {
+      if (cc.fresh || cc.cur === '0') { cc.cur = k; } else if (cc.cur.length < 14) { cc.cur += k; }
+      cc.fresh = false;
+    } else if (k === '.') {
+      if (cc.fresh) { cc.cur = '0.'; cc.fresh = false; }
+      else if (cc.cur.indexOf('.') < 0) { cc.cur += '.'; }
+    } else if (k === 'C') {
+      cc = { cur: '0', acc: null, op: null, fresh: false };
+    } else if (k === '<') {
+      if (!cc.fresh) { cc.cur = cc.cur.length > 1 ? cc.cur.slice(0, -1) : '0'; if (cc.cur === '-') { cc.cur = '0'; } }
+    } else if (k === '%') {
+      cc.cur = fmtNum(parseFloat(cc.cur) / 100); cc.fresh = true;
+    } else if (k === '=') {
+      if (cc.op) { calcCompute(); if (cc.cur !== 'Errore') { cc.acc = null; cc.op = null; cc.fresh = true; } }
+    } else {
+      if (cc.op && !cc.fresh) { calcCompute(); }
+      if (cc.cur !== 'Errore') { cc.acc = parseFloat(cc.cur); cc.op = k; cc.fresh = true; }
+    }
+    calcShow();
+  }
+
+  function buildWidgets() {
+    var i, o, g, sel;
+    // calcolatrice
+    var rows = [
+      [['C', 'C', 'f'], ['\u232b', '<', 'f'], ['%', '%', 'f'], ['\u00f7', '\u00f7', 'o']],
+      [['7'], ['8'], ['9'], ['\u00d7', '\u00d7', 'o']],
+      [['4'], ['5'], ['6'], ['\u2212', '\u2212', 'o']],
+      [['1'], ['2'], ['3'], ['+', '+', 'o']],
+      [['0', '0', 'z'], [','  , '.'], ['=', '=', 'e']]
+    ];
+    var box = $('cKeys');
+    for (var r = 0; r < rows.length; r++) {
+      var row = document.createElement('div');
+      row.className = 'krow';
+      for (var c = 0; c < rows[r].length; c++) {
+        (function(def) {
+          var b = document.createElement('button');
+          b.className = 'kb' + (def[2] ? ' ' + def[2] : '');
+          b.textContent = def[0];
+          b.onclick = function() { calcKey(def[1] || def[0]); };
+          row.appendChild(b);
+        })(rows[r][c]);
+      }
+      box.appendChild(row);
+    }
+    // film/serie
+    sel = $('mGenre');
+    var genres = ['Qualsiasi'];
+    for (g in MOVIES.film) { if (MOVIES.film.hasOwnProperty(g)) { genres.push(g); } }
+    for (i = 0; i < genres.length; i++) {
+      o = document.createElement('option');
+      o.value = genres[i]; o.text = genres[i];
+      sel.appendChild(o);
+    }
+    $('mType').value = cfg.mvType;
+    $('mGenre').value = cfg.mvGenre;
+    mShow(false);
+    // frasi
+    qIdx = dayNum() % QUOTES.length;
+    showQuote();
+    // note
+    try { $('noteArea').value = localStorage.getItem('notes') || ''; } catch (e) {}
+    $('noteArea').oninput = function() { try { localStorage.setItem('notes', this.value); } catch (e) {} noteMini(); };
+    noteMini();
+    calcShow();
+  }
+
+  function showTab(name) {
+    wTab = name;
+    for (var i = 0; i < TABS.length; i++) {
+      $('wt-' + TABS[i]).style.display = TABS[i] === name ? 'block' : 'none';
+      $('tab-' + TABS[i]).className = 'tab' + (TABS[i] === name ? ' sel' : '');
+    }
+    if (name === 'movie') { mShow(false); }
+  }
+  function openWidgets() { $('wpanel').className = 'open'; showTab(wTab); }
+  function closeWidgets() { $('wpanel').className = ''; }
 
   function applyFont() {
     document.body.style.fontFamily = (FONTS[cfg.font] || FONTS[0]).css;
@@ -681,6 +1171,7 @@
         sel.appendChild(o);
       }
     }
+    buildColorRows();
     var fs = $('fFont');
     for (i = 0; i < FONTS.length; i++) {
       o = document.createElement('option');
@@ -710,6 +1201,8 @@
     $('fMsg').textContent = '';
     tempTheme = cfg.theme;
     markSwatch();
+    tmpC = { cText: cfg.cText, cBtn: cfg.cBtn, cBorder: cfg.cBorder, cAccent: cfg.cAccent };
+    markColors();
     $('panel').className = 'open';
   }
 
@@ -730,6 +1223,7 @@
     cfg.nightFrom = parseInt($('fFrom').value, 10);
     cfg.nightTo = parseInt($('fTo').value, 10);
     cfg.theme = tempTheme;
+    cfg.cText = tmpC.cText; cfg.cBtn = tmpC.cBtn; cfg.cBorder = tmpC.cBorder; cfg.cAccent = tmpC.cAccent;
     cfg.ytList = parseList($('fYt').value);
     cfg.cal = $('fCal').checked;
     cfg.font = parseInt($('fFont').value, 10);
@@ -739,6 +1233,7 @@
       saveCfg();
       applyTheme();
       applyFont();
+      applyColors();
       lastCalDay = -1;
       updateClock();
       lastNews = 0;
@@ -793,6 +1288,9 @@
   }
 
   buildSettingsUI();
+  buildWidgets();
+  buildLayout();
+  applyColors();
   applyTheme();
   applyFont();
   setInterval(function() { if (newsItems.length > 1) { newsIdx = (newsIdx + 1) % newsItems.length; showNews(); } }, 10000);
