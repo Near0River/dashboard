@@ -92,6 +92,15 @@
   .controls #playBtn:active { background: #7b86ff; }
   .controls #modeBtn { width: auto; border-radius: 22px; height: 52px; font-size: 18px; font-weight: bold; padding: 0 20px; margin-left: 0; margin-right: 10px; background: rgba(255,255,255,0.14); letter-spacing: 1px; }
 
+  .rcol { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: stretch; align-items: stretch; }
+  .rcol .top-right { -webkit-justify-content: flex-end; justify-content: flex-end; }
+  #cal { margin-top: 14px; min-width: 300px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10); border-radius: 18px; padding: 10px 14px; }
+  #cal .ct { font-size: 18px; font-weight: bold; text-transform: capitalize; text-align: center; margin-bottom: 4px; }
+  #cal table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  #cal th { font-size: 13px; color: #9fa3c4; font-weight: normal; padding: 2px 0; }
+  #cal td { font-size: 16px; text-align: center; height: 29px; color: #e6e7f5; }
+  #cal td.su { color: #ff9aa8; }
+  #cal td.t span { display: inline-block; width: 28px; height: 28px; line-height: 28px; border-radius: 14px; background: #5865f2; color: #fff; font-weight: bold; }
   #news { margin-top: 26px; max-width: 620px; opacity: 1; -webkit-transition: opacity 0.3s; transition: opacity 0.3s; }
   #news .lbl { font-size: 14px; letter-spacing: 3px; color: #7b86ff; font-weight: bold; margin-bottom: 6px; }
   #newsText { font-size: 22px; line-height: 1.3; color: #d6d8f0; height: 58px; overflow: hidden; }
@@ -147,6 +156,7 @@
       <div id="date">--</div>
       <div id="news"><div class="lbl">ULTIME NOTIZIE</div><div id="newsText">Caricamento...</div></div>
     </div>
+    <div class="rcol">
     <div class="top-right">
       <div class="weather-box">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M11 1h2v3h-2zM11 20h2v3h-2zM1 11h3v2H1zM20 11h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zM16.3 17.7l1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/></svg>
@@ -158,6 +168,8 @@
       <button id="refreshBtn" onclick="refreshPage()" aria-label="Aggiorna pagina">
         <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z"/></svg>
       </button>
+    </div>
+    <div id="cal"></div>
     </div>
   </div>
 
@@ -221,6 +233,11 @@
       </div>
       <div class="hint">La luminosit&agrave; viene ridotta oscurando lo schermo; non cambia quella reale del tablet.</div>
 
+      <div class="check">
+        <input type="checkbox" id="fCal">
+        <span>Mostra il calendario</span>
+      </div>
+
       <label for="fFont">Font della pagina</label>
       <select id="fFont"></select>
 
@@ -269,7 +286,7 @@
   ];
   var MODES = ['pc', 'tablet', 'yt'];
 
-  var DEFAULTS = { city: '', lat: LAT, lon: LON, theme: 0, dimOn: false, dayB: 100, nightB: 30, nightFrom: 22, nightTo: 7, ytList: 'PLdga5mgkmErO8YwmbefS47kRgvPg5XGpL', font: 0, news: 'https://www.ansa.it/sito/ansait_rss.xml' };
+  var DEFAULTS = { city: '', lat: LAT, lon: LON, theme: 0, dimOn: false, dayB: 100, nightB: 30, nightFrom: 22, nightTo: 7, ytList: 'PLdga5mgkmErO8YwmbefS47kRgvPg5XGpL', cal: true, font: 0, news: 'https://www.ansa.it/sito/ansait_rss.xml' };
   var cfg = loadCfg();
 
   var busy = false;
@@ -303,6 +320,30 @@
     s.background = t.b;
     s.background = '-webkit-linear-gradient(top, ' + t.a + ' 0%, ' + t.b + ' 100%)';
     s.background = 'linear-gradient(180deg, ' + t.a + ' 0%, ' + t.b + ' 100%)';
+  }
+
+  var lastCalDay = -1;
+  function renderCal() {
+    var box = $('cal');
+    if (!cfg.cal) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    var d = new Date(), y = d.getFullYear(), mo = d.getMonth(), today = d.getDate();
+    var offset = (new Date(y, mo, 1).getDay() + 6) % 7;
+    var dim = new Date(y, mo + 1, 0).getDate();
+    var h = '<div class="ct">' + MONTHS[mo] + ' ' + y + '</div><table><tr>';
+    var names = ['L', 'M', 'M', 'G', 'V', 'S', 'D'], i, c, day = 1 - offset;
+    for (i = 0; i < 7; i++) { h += '<th>' + names[i] + '</th>'; }
+    h += '</tr>';
+    while (day <= dim) {
+      h += '<tr>';
+      for (c = 0; c < 7; c++, day++) {
+        if (day < 1 || day > dim) { h += '<td></td>'; }
+        else if (day === today) { h += '<td class="t"><span>' + day + '</span></td>'; }
+        else { h += '<td' + (c === 6 ? ' class="su"' : '') + '>' + day + '</td>'; }
+      }
+      h += '</tr>';
+    }
+    box.innerHTML = h + '</table>';
   }
 
   function applyFont() {
@@ -375,6 +416,7 @@
     var now = new Date();
     $('clock').textContent = pad(now.getHours()) + ':' + pad(now.getMinutes());
     $('date').textContent = DAYS[now.getDay()] + ' ' + now.getDate() + ' ' + MONTHS[now.getMonth()];
+    if (now.getDate() !== lastCalDay) { lastCalDay = now.getDate(); renderCal(); }
     applyBrightness();
   }
 
@@ -473,7 +515,7 @@
   }
 
   // ---- Modalita' YouTube (playlist) ----
-  var ytPlayer = null, ytLoading = false, ytWantPlay = false;
+  var ytPlayer = null, ytLoading = false, ytWantPlay = false, ytErrs = 0, ytStuck = 0, ytIntent = false;
 
   function loadYT() {
     if (ytLoading) { return; }
@@ -497,8 +539,15 @@
       playerVars: { listType: 'playlist', list: cfg.ytList, playsinline: 1, controls: 0 },
       events: {
         onReady: function() { if (ytWantPlay) { try { ytPlayer.playVideo(); } catch (e) {} } updateYT(); },
-        onStateChange: function() { updateYT(); },
-        onError: function() {
+        onStateChange: function(e) { if (e && e.data === 1) { ytErrs = 0; ytStuck = 0; } updateYT(); },
+        onError: function(e) {
+          var c = e && e.data;
+          // video non disponibile / non incorporabile: salta al successivo
+          if ((c === 100 || c === 101 || c === 150 || c === 5) && ytErrs < 8) {
+            ytErrs++;
+            try { ytPlayer.nextVideo(); } catch (x) {}
+            return;
+          }
           $('title').textContent = 'Errore YouTube';
           $('artist').textContent = 'Controlla l\u2019ID della playlist (deve essere pubblica)';
         }
@@ -527,10 +576,27 @@
     } catch (e) {}
   }
 
+  // Controllo automatico: se la musica si ferma o resta in caricamento, riprova
+  function ytWatch() {
+    if (mode !== 'yt' || !ytPlayer || !ytIntent || !ytPlayer.getPlayerState) { return; }
+    try {
+      var st = ytPlayer.getPlayerState();
+      if (st === 1) { ytStuck = 0; return; }
+      ytStuck += 3;
+      if (st === 3) {
+        if (ytStuck === 21) { ytPlayer.seekTo(ytPlayer.getCurrentTime(), true); }
+        else if (ytStuck >= 45) { ytStuck = 0; ytPlayer.nextVideo(); }
+      } else if (st === -1 || st === 2 || st === 5) {
+        if (ytStuck >= 6) { ytStuck = 0; ytPlayer.playVideo(); }
+      }
+    } catch (e) {}
+  }
+
   function ytCmd(cmd) {
     if (!cfg.ytList) { updateYT(); return; }
     if (!ytPlayer) {
       ytWantPlay = true;
+      ytIntent = true;
       $('title').textContent = 'YouTube';
       $('artist').textContent = 'Caricamento... se non parte, premi play di nuovo';
       if (window.YT && window.YT.Player) { window.onYouTubeIframeAPIReady(); }
@@ -538,10 +604,11 @@
       return;
     }
     try {
-      if (cmd === 'next') { ytPlayer.nextVideo(); }
-      else if (cmd === 'previous') { ytPlayer.previousVideo(); }
-      else if (ytPlayer.getPlayerState() === 1) { ytPlayer.pauseVideo(); }
-      else { ytPlayer.playVideo(); }
+      ytStuck = 0;
+      if (cmd === 'next') { ytIntent = true; ytPlayer.nextVideo(); }
+      else if (cmd === 'previous') { ytIntent = true; ytPlayer.previousVideo(); }
+      else if (ytPlayer.getPlayerState() === 1) { ytIntent = false; ytPlayer.pauseVideo(); }
+      else { ytIntent = true; ytPlayer.playVideo(); }
     } catch (e) {}
     setTimeout(updateYT, 800);
   }
@@ -559,6 +626,7 @@
   function applyMode() {
     $('modeBtn').textContent = mode === 'pc' ? 'PC' : (mode === 'tablet' ? 'TABLET' : 'YT');
     if (mode !== 'tablet') { audio.pause(); }
+    if (mode !== 'yt') { ytIntent = false; }
     if (mode !== 'yt' && ytPlayer) { try { ytPlayer.pauseVideo(); } catch (e) {} }
     if (mode === 'tablet') {
       if (audio.src) {
@@ -636,6 +704,7 @@
     $('fFrom').value = cfg.nightFrom;
     $('fTo').value = cfg.nightTo;
     $('fYt').value = cfg.ytList;
+    $('fCal').checked = !!cfg.cal;
     $('fFont').value = cfg.font;
     $('fNews').value = cfg.news;
     $('fMsg').textContent = '';
@@ -662,6 +731,7 @@
     cfg.nightTo = parseInt($('fTo').value, 10);
     cfg.theme = tempTheme;
     cfg.ytList = parseList($('fYt').value);
+    cfg.cal = $('fCal').checked;
     cfg.font = parseInt($('fFont').value, 10);
     cfg.news = $('fNews').value.replace(/^\s+|\s+$/g, '');
 
@@ -669,6 +739,8 @@
       saveCfg();
       applyTheme();
       applyFont();
+      lastCalDay = -1;
+      updateClock();
       lastNews = 0;
       lastDim = -1;
       applyBrightness();
@@ -716,7 +788,7 @@
     if (mode === 'pc') { fetchStatus(); }
     else {
       fetchWeatherFallback();
-      if (mode === 'yt') { updateYT(); }
+      if (mode === 'yt') { updateYT(); ytWatch(); }
     }
   }
 
