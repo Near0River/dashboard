@@ -34,7 +34,7 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.35);
   }
   .top-right { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
-  #refreshBtn {
+  #refreshBtn, #settingsBtn {
     width: 72px; height: 72px; border-radius: 36px; margin-left: 16px; border: none; outline: none;
     background: rgba(255,255,255,0.10); color: #fff;
     display: -webkit-flex; display: flex;
@@ -42,8 +42,8 @@
     -webkit-justify-content: center; justify-content: center;
     -webkit-flex-shrink: 0; flex-shrink: 0;
   }
-  #refreshBtn svg { width: 34px; height: 34px; fill: currentColor; }
-  #refreshBtn:active { background: #5865f2; }
+  #refreshBtn svg, #settingsBtn svg { width: 34px; height: 34px; fill: currentColor; }
+  #refreshBtn:active, #settingsBtn:active { background: #5865f2; }
   .weather-box svg { width: 40px; height: 40px; fill: #ffd166; margin-right: 16px; -webkit-flex-shrink: 0; flex-shrink: 0; }
 
   .media-box {
@@ -90,6 +90,49 @@
   .controls #playBtn svg { width: 44px; height: 44px; }
   .controls #playBtn:active { background: #7b86ff; }
   .controls #modeBtn { width: auto; border-radius: 22px; height: 52px; font-size: 18px; font-weight: bold; padding: 0 20px; margin-left: 0; margin-right: 10px; background: rgba(255,255,255,0.14); letter-spacing: 1px; }
+
+  /* Velo scuro per la luminosita' programmata */
+  #dim { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: #000; opacity: 0; pointer-events: none; z-index: 999; }
+
+  /* Player YouTube (quasi invisibile, ma presente nella pagina) */
+  #ytBox { position: fixed; right: 0; bottom: 0; width: 200px; height: 200px; opacity: 0.01; pointer-events: none; z-index: 0; }
+
+  /* Pannello impostazioni */
+  #panel {
+    display: none; position: fixed; left: 0; top: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.75); z-index: 500;
+    -webkit-align-items: center; align-items: center;
+    -webkit-justify-content: center; justify-content: center;
+  }
+  #panel.open { display: -webkit-flex; display: flex; }
+  .card {
+    width: 92%; max-width: 640px; max-height: 92%;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    background: #1c1c30; border-radius: 24px; padding: 26px 28px;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .card h2 { font-size: 30px; margin-bottom: 18px; }
+  .card label { display: block; font-size: 20px; color: #9fa3c4; margin: 18px 0 8px 0; }
+  .card input[type=text], .card select {
+    width: 100%; font-size: 22px; padding: 12px 14px; border-radius: 12px; border: none; outline: none;
+    background: rgba(255,255,255,0.10); color: #fff;
+  }
+  .card select option { color: #000; }
+  .card input[type=range] { width: 100%; height: 36px; }
+  .card .hint { font-size: 16px; color: #7c80a0; margin-top: 6px; }
+  .row { display: -webkit-flex; display: flex; }
+  .row > div { -webkit-flex: 1; flex: 1; margin-right: 12px; }
+  .row > div:last-child { margin-right: 0; }
+  .check { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; font-size: 22px; margin-top: 22px; color: #f5f5f7; }
+  .check input { width: 30px; height: 30px; margin-right: 14px; }
+  #swatches { display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; }
+  .sw { width: 60px; height: 60px; border-radius: 30px; margin: 0 12px 12px 0; border: 4px solid transparent; outline: none; }
+  .sw.sel { border-color: #fff; }
+  #fMsg { color: #ff8a8a; font-size: 18px; margin-top: 14px; min-height: 22px; }
+  .btns { display: -webkit-flex; display: flex; margin-top: 18px; }
+  .btns button { -webkit-flex: 1; flex: 1; font-size: 22px; font-weight: bold; padding: 16px; border-radius: 14px; border: none; outline: none; color: #fff; background: rgba(255,255,255,0.12); margin-right: 12px; }
+  .btns button:last-child { margin-right: 0; }
+  .btns #saveBtn { background: #5865f2; }
 </style>
 </head>
 <body>
@@ -103,6 +146,9 @@
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M11 1h2v3h-2zM11 20h2v3h-2zM1 11h3v2H1zM20 11h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zM16.3 17.7l1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/></svg>
         <span id="weather">Caricamento...</span>
       </div>
+      <button id="settingsBtn" onclick="openSettings()" aria-label="Impostazioni">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7 7 0 0 0-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.48.48 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>
+      </button>
       <button id="refreshBtn" onclick="refreshPage()" aria-label="Aggiorna pagina">
         <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z"/></svg>
       </button>
@@ -133,22 +179,83 @@
     </div>
   </div>
 
+  <div id="ytBox"></div>
+  <div id="dim"></div>
+
+  <div id="panel">
+    <div class="card">
+      <h2>Impostazioni</h2>
+
+      <label for="fCity">Citt&agrave; per il meteo</label>
+      <input type="text" id="fCity" placeholder="es. Milano (vuoto = usa il meteo del PC)" autocomplete="off">
+
+      <label>Colore dello sfondo</label>
+      <div id="swatches"></div>
+
+      <div class="check">
+        <input type="checkbox" id="fDim">
+        <span>Luminosit&agrave; programmata</span>
+      </div>
+
+      <label for="fDay">Luminosit&agrave; di giorno: <span id="vDay"></span>%</label>
+      <input type="range" id="fDay" min="10" max="100" step="5">
+
+      <label for="fNight">Luminosit&agrave; di notte: <span id="vNight"></span>%</label>
+      <input type="range" id="fNight" min="5" max="100" step="5">
+
+      <div class="row">
+        <div>
+          <label for="fFrom">Notte dalle</label>
+          <select id="fFrom"></select>
+        </div>
+        <div>
+          <label for="fTo">Fino alle</label>
+          <select id="fTo"></select>
+        </div>
+      </div>
+      <div class="hint">La luminosit&agrave; viene ridotta oscurando lo schermo; non cambia quella reale del tablet.</div>
+
+      <label for="fYt">Playlist YouTube (modalit&agrave; YT)</label>
+      <input type="text" id="fYt" placeholder="Link o ID della playlist" autocomplete="off">
+
+      <div id="fMsg"></div>
+      <div class="btns">
+        <button id="cancelBtn" onclick="closeSettings()">Annulla</button>
+        <button id="saveBtn" onclick="saveSettings()">Salva</button>
+      </div>
+    </div>
+  </div>
+
 <script src="playlist.js"></script>
 <script>
   // ---- CONFIGURAZIONE ----
   // '' se la pagina viene servita dal PC (http://IP:8080).
   // Se la pagina e' salvata sul tablet, scrivi qui l'indirizzo del PC, es. 'http://192.168.1.50:8080'
   var PC_URL = '';
-  // Coordinate per il meteo quando il PC e' spento (default: Roma)
+  // Coordinate predefinite per il meteo (default: Roma). Si cambiano dalle impostazioni.
   var LAT = 41.89, LON = 12.48;
   // ------------------------
 
   var DAYS = ['domenica', 'luned\u00ec', 'marted\u00ec', 'mercoled\u00ec', 'gioved\u00ec', 'venerd\u00ec', 'sabato'];
   var MONTHS = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+  var THEMES = [
+    { a: '#1b1b32', b: '#0d0d16' }, // Notte
+    { a: '#1a1a1a', b: '#000000' }, // Nero
+    { a: '#16314f', b: '#08121f' }, // Blu
+    { a: '#163b2e', b: '#08140f' }, // Verde
+    { a: '#3a1b52', b: '#140820' }, // Viola
+    { a: '#4a1a22', b: '#1a080b' }, // Rosso
+    { a: '#2c2f36', b: '#121316' }  // Grigio
+  ];
+  var MODES = ['pc', 'tablet', 'yt'];
+
+  var DEFAULTS = { city: '', lat: LAT, lon: LON, theme: 0, dimOn: false, dayB: 100, nightB: 30, nightFrom: 22, nightTo: 7, ytList: '' };
+  var cfg = loadCfg();
+
   var busy = false;
   var lastWx = 0;
   var mode = 'pc';
-  try { mode = localStorage.getItem('mode') === 'tablet' ? 'tablet' : 'pc'; } catch (e) {}
+  try { var m0 = localStorage.getItem('mode'); mode = (m0 === 'tablet' || m0 === 'yt') ? m0 : 'pc'; } catch (e) {}
 
   var tracks = (typeof PLAYLIST !== 'undefined') ? PLAYLIST : [];
   var idx = 0;
@@ -157,13 +264,52 @@
   function $(id) { return document.getElementById(id); }
   function pad(n) { return n < 10 ? '0' + n : String(n); }
 
+  // ---- Impostazioni: salvataggio/lettura ----
+  function loadCfg() {
+    var c = {}, k;
+    for (k in DEFAULTS) { if (DEFAULTS.hasOwnProperty(k)) { c[k] = DEFAULTS[k]; } }
+    try {
+      var s = JSON.parse(localStorage.getItem('cfg') || '{}');
+      for (k in s) { if (DEFAULTS.hasOwnProperty(k)) { c[k] = s[k]; } }
+    } catch (e) {}
+    return c;
+  }
+  function saveCfg() { try { localStorage.setItem('cfg', JSON.stringify(cfg)); } catch (e) {} }
+
+  // ---- Tema (sfondo) ----
+  function applyTheme() {
+    var t = THEMES[cfg.theme] || THEMES[0];
+    var s = document.body.style;
+    s.background = t.b;
+    s.background = '-webkit-linear-gradient(top, ' + t.a + ' 0%, ' + t.b + ' 100%)';
+    s.background = 'linear-gradient(180deg, ' + t.a + ' 0%, ' + t.b + ' 100%)';
+  }
+
+  // ---- Luminosita' programmata ----
+  var lastDim = -1;
+  function applyBrightness() {
+    var level = 100;
+    if (cfg.dimOn) {
+      var h = new Date().getHours();
+      var f = cfg.nightFrom, t = cfg.nightTo, night;
+      if (f === t) { night = false; }
+      else if (f > t) { night = (h >= f || h < t); }
+      else { night = (h >= f && h < t); }
+      level = night ? cfg.nightB : cfg.dayB;
+    }
+    if (level === lastDim) { return; }
+    lastDim = level;
+    $('dim').style.opacity = String(1 - level / 100);
+  }
+
   function updateClock() {
     var now = new Date();
     $('clock').textContent = pad(now.getHours()) + ':' + pad(now.getMinutes());
     $('date').textContent = DAYS[now.getDay()] + ' ' + now.getDate() + ' ' + MONTHS[now.getMonth()];
+    applyBrightness();
   }
 
-  // ---- Meteo di riserva (Open-Meteo), usato se il PC non risponde ----
+  // ---- Meteo (Open-Meteo): usato se hai scelto una citta' o se il PC non risponde ----
   function wxText(code) {
     if (code === 0) { return 'Sereno'; }
     if (code <= 3) { return 'Nuvoloso'; }
@@ -179,14 +325,14 @@
     if (now - lastWx < 900000) { return; }
     lastWx = now;
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://api.open-meteo.com/v1/forecast?latitude=' + LAT + '&longitude=' + LON + '&current_weather=true', true);
+    xhr.open('GET', 'https://api.open-meteo.com/v1/forecast?latitude=' + cfg.lat + '&longitude=' + cfg.lon + '&current_weather=true', true);
     xhr.timeout = 8000;
     xhr.onreadystatechange = function() {
       if (xhr.readyState !== 4) { return; }
       if (xhr.status === 200) {
         try {
           var w = JSON.parse(xhr.responseText).current_weather;
-          $('weather').textContent = Math.round(w.temperature) + '\u00b0C ' + wxText(w.weathercode);
+          $('weather').textContent = Math.round(w.temperature) + '\u00b0C ' + wxText(w.weathercode) + (cfg.city ? ' \u00b7 ' + cfg.city : '');
         } catch (e) {}
       } else {
         lastWx = 0;
@@ -209,7 +355,8 @@
       if (xhr.status === 200) {
         try {
           var data = JSON.parse(xhr.responseText);
-          $('weather').textContent = data.weather;
+          if (cfg.city) { fetchWeatherFallback(); }
+          else { $('weather').textContent = data.weather; }
           if (mode === 'pc') {
             $('title').textContent = data.media.title;
             $('artist').textContent = data.media.artist;
@@ -218,7 +365,7 @@
       } else {
         if (mode === 'pc') {
           $('title').textContent = 'PC non raggiungibile';
-          $('artist').textContent = 'Passa alla modalit\u00e0 TABLET per la musica locale';
+          $('artist').textContent = 'Passa alla modalit\u00e0 TABLET o YT per la musica';
         }
         fetchWeatherFallback();
       }
@@ -256,9 +403,84 @@
     else { if (audio.paused) { audio.play(); } else { audio.pause(); } }
   }
 
+  // ---- Modalita' YouTube (playlist) ----
+  var ytPlayer = null, ytLoading = false, ytWantPlay = false;
+
+  function loadYT() {
+    if (ytLoading) { return; }
+    ytLoading = true;
+    var s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    s.onerror = function() {
+      ytLoading = false;
+      if (mode === 'yt') {
+        $('title').textContent = 'YouTube non raggiungibile';
+        $('artist').textContent = 'Controlla la connessione o usa un altro tablet/browser';
+      }
+    };
+    document.body.appendChild(s);
+  }
+
+  window.onYouTubeIframeAPIReady = function() {
+    if (!cfg.ytList) { return; }
+    ytPlayer = new YT.Player('ytBox', {
+      height: '200', width: '200',
+      playerVars: { listType: 'playlist', list: cfg.ytList, playsinline: 1, controls: 0 },
+      events: {
+        onReady: function() { if (ytWantPlay) { try { ytPlayer.playVideo(); } catch (e) {} } updateYT(); },
+        onStateChange: function() { updateYT(); },
+        onError: function() {
+          $('title').textContent = 'Errore YouTube';
+          $('artist').textContent = 'Controlla l\u2019ID della playlist (deve essere pubblica)';
+        }
+      }
+    });
+  };
+
+  function updateYT() {
+    if (mode !== 'yt') { return; }
+    if (!cfg.ytList) {
+      $('title').textContent = 'YouTube';
+      $('artist').textContent = 'Imposta una playlist dalle impostazioni';
+      return;
+    }
+    if (!ytPlayer || !ytPlayer.getVideoData) {
+      $('title').textContent = 'YouTube';
+      $('artist').textContent = 'Premi play per avviare';
+      return;
+    }
+    try {
+      var d = ytPlayer.getVideoData();
+      if (d && d.title) {
+        $('title').textContent = d.title;
+        $('artist').textContent = 'YouTube \u2022 ' + (d.author || '');
+      }
+    } catch (e) {}
+  }
+
+  function ytCmd(cmd) {
+    if (!cfg.ytList) { updateYT(); return; }
+    if (!ytPlayer) {
+      ytWantPlay = true;
+      $('title').textContent = 'YouTube';
+      $('artist').textContent = 'Caricamento... se non parte, premi play di nuovo';
+      if (window.YT && window.YT.Player) { window.onYouTubeIframeAPIReady(); }
+      else { loadYT(); }
+      return;
+    }
+    try {
+      if (cmd === 'next') { ytPlayer.nextVideo(); }
+      else if (cmd === 'previous') { ytPlayer.previousVideo(); }
+      else if (ytPlayer.getPlayerState() === 1) { ytPlayer.pauseVideo(); }
+      else { ytPlayer.playVideo(); }
+    } catch (e) {}
+    setTimeout(updateYT, 800);
+  }
+
   // ---- Comuni ----
   function sendCmd(cmd) {
     if (mode === 'tablet') { tabletCmd(cmd); return; }
+    if (mode === 'yt') { ytCmd(cmd); return; }
     var xhr = new XMLHttpRequest();
     xhr.open('GET', PC_URL + '/api/cmd/' + cmd, true);
     xhr.send();
@@ -266,7 +488,9 @@
   }
 
   function applyMode() {
-    $('modeBtn').textContent = mode === 'pc' ? 'PC' : 'TABLET';
+    $('modeBtn').textContent = mode === 'pc' ? 'PC' : (mode === 'tablet' ? 'TABLET' : 'YT');
+    if (mode !== 'tablet') { audio.pause(); }
+    if (mode !== 'yt' && ytPlayer) { try { ytPlayer.pauseVideo(); } catch (e) {} }
     if (mode === 'tablet') {
       if (audio.src) {
         $('title').textContent = trackName(tracks[idx]);
@@ -274,14 +498,17 @@
       } else {
         loadTrack(0, false);
       }
+    } else if (mode === 'yt') {
+      updateYT();
     } else {
-      audio.pause();
       fetchStatus();
     }
   }
 
   function toggleMode() {
-    mode = mode === 'pc' ? 'tablet' : 'pc';
+    var i = 0;
+    for (var k = 0; k < MODES.length; k++) { if (MODES[k] === mode) { i = k; } }
+    mode = MODES[(i + 1) % MODES.length];
     try { localStorage.setItem('mode', mode); } catch (e) {}
     applyMode();
   }
@@ -292,11 +519,127 @@
     location.href = url + (url.indexOf('?') === -1 ? '?' : '&') + '_r=' + new Date().getTime();
   }
 
-  function tick() {
-    if (mode === 'pc') { fetchStatus(); }
-    else { fetchWeatherFallback(); }
+  // ---- Pannello impostazioni ----
+  var tempTheme = 0;
+
+  function buildSettingsUI() {
+    var i, o, sel, box = $('swatches');
+    for (i = 0; i < THEMES.length; i++) {
+      (function(n) {
+        var b = document.createElement('button');
+        b.className = 'sw';
+        b.style.background = THEMES[n].a;
+        b.style.background = '-webkit-linear-gradient(135deg, ' + THEMES[n].a + ', ' + THEMES[n].b + ')';
+        b.style.background = 'linear-gradient(135deg, ' + THEMES[n].a + ', ' + THEMES[n].b + ')';
+        b.onclick = function() { tempTheme = n; markSwatch(); };
+        box.appendChild(b);
+      })(i);
+    }
+    var ids = ['fFrom', 'fTo'];
+    for (var k = 0; k < ids.length; k++) {
+      sel = $(ids[k]);
+      for (i = 0; i < 24; i++) {
+        o = document.createElement('option');
+        o.value = i; o.text = pad(i) + ':00';
+        sel.appendChild(o);
+      }
+    }
+    $('fDay').oninput = function() { $('vDay').textContent = $('fDay').value; };
+    $('fNight').oninput = function() { $('vNight').textContent = $('fNight').value; };
   }
 
+  function markSwatch() {
+    var b = $('swatches').getElementsByTagName('button');
+    for (var i = 0; i < b.length; i++) { b[i].className = 'sw' + (i === tempTheme ? ' sel' : ''); }
+  }
+
+  function openSettings() {
+    $('fCity').value = cfg.city;
+    $('fDim').checked = !!cfg.dimOn;
+    $('fDay').value = cfg.dayB; $('vDay').textContent = cfg.dayB;
+    $('fNight').value = cfg.nightB; $('vNight').textContent = cfg.nightB;
+    $('fFrom').value = cfg.nightFrom;
+    $('fTo').value = cfg.nightTo;
+    $('fYt').value = cfg.ytList;
+    $('fMsg').textContent = '';
+    tempTheme = cfg.theme;
+    markSwatch();
+    $('panel').className = 'open';
+  }
+
+  function closeSettings() { $('panel').className = ''; }
+
+  function parseList(v) {
+    v = v.replace(/^\s+|\s+$/g, '');
+    var m = v.match(/[?&]list=([\w-]+)/);
+    return m ? m[1] : v;
+  }
+
+  function saveSettings() {
+    var newCity = $('fCity').value.replace(/^\s+|\s+$/g, '');
+    var oldList = cfg.ytList;
+    cfg.dimOn = $('fDim').checked;
+    cfg.dayB = parseInt($('fDay').value, 10);
+    cfg.nightB = parseInt($('fNight').value, 10);
+    cfg.nightFrom = parseInt($('fFrom').value, 10);
+    cfg.nightTo = parseInt($('fTo').value, 10);
+    cfg.theme = tempTheme;
+    cfg.ytList = parseList($('fYt').value);
+
+    function done() {
+      saveCfg();
+      applyTheme();
+      lastDim = -1;
+      applyBrightness();
+      closeSettings();
+      lastWx = 0;
+      tick();
+      if (cfg.ytList !== oldList) {
+        if (ytPlayer && cfg.ytList) { try { ytPlayer.cuePlaylist({ listType: 'playlist', list: cfg.ytList }); } catch (e) {} }
+        updateYT();
+      }
+    }
+
+    if (newCity === cfg.city) { done(); return; }
+    if (!newCity) { cfg.city = ''; cfg.lat = LAT; cfg.lon = LON; done(); return; }
+
+    $('fMsg').style.color = '#9fa3c4';
+    $('fMsg').textContent = 'Cerco la citt\u00e0...';
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://geocoding-api.open-meteo.com/v1/search?count=1&language=it&name=' + encodeURIComponent(newCity), true);
+    xhr.timeout = 8000;
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== 4) { return; }
+      $('fMsg').style.color = '#ff8a8a';
+      if (xhr.status === 200) {
+        try {
+          var r = JSON.parse(xhr.responseText);
+          if (r.results && r.results.length) {
+            cfg.city = r.results[0].name;
+            cfg.lat = r.results[0].latitude;
+            cfg.lon = r.results[0].longitude;
+            done();
+            return;
+          }
+        } catch (e) {}
+        $('fMsg').textContent = 'Citt\u00e0 non trovata';
+      } else {
+        $('fMsg').textContent = 'Impossibile cercare la citt\u00e0 (connessione?)';
+      }
+    };
+    xhr.send();
+  }
+
+  function tick() {
+    if (mode === 'pc') { fetchStatus(); }
+    else {
+      fetchWeatherFallback();
+      if (mode === 'yt') { updateYT(); }
+    }
+  }
+
+  buildSettingsUI();
+  applyTheme();
   setInterval(updateClock, 1000);
   setInterval(tick, 3000);
   updateClock();
