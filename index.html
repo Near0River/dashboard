@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Display</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+  html, body { height: 100%; }
+  body { background: #121218; color: #f5f5f7; display: flex; flex-direction: column; justify-content: space-between; padding: 28px; }
+  .top { display: flex; justify-content: space-between; align-items: center; }
+  #clock { font-size: 92px; font-weight: bold; letter-spacing: 2px; }
+  #date { font-size: 24px; color: #a0a0b0; margin-top: 4px; }
+  .weather-box { background: #1e1e2a; padding: 20px 28px; border-radius: 18px; font-size: 28px; }
+  .media-box { background: #1e1e2a; padding: 24px 30px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; }
+  .track-info { max-width: 55%; }
+  #title { font-size: 28px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #artist { font-size: 20px; color: #a0a0b0; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .controls button { background: #2d2d3f; color: white; border: none; font-size: 28px; padding: 18px 26px; margin-left: 12px; border-radius: 14px; }
+  .controls button:active { background: #5865f2; }
+  .controls #modeBtn { font-size: 18px; padding: 18px 16px; background: #3a3a55; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div>
+      <div id="clock">00:00</div>
+      <div id="date">--</div>
+    </div>
+    <div class="weather-box" id="weather">Caricamento...</div>
+  </div>
+
+  <div class="media-box">
+    <div class="track-info">
+      <div id="title">Nessun brano</div>
+      <div id="artist">Avvia la musica sul PC</div>
+    </div>
+    <div class="controls">
+      <button id="modeBtn" onclick="toggleMode()">PC</button>
+      <button onclick="sendCmd('previous')">&#9198;</button>
+      <button onclick="sendCmd('play-pause')">&#9199;</button>
+      <button onclick="sendCmd('next')">&#9197;</button>
+    </div>
+  </div>
+
+<script src="playlist.js"></script>
+<script>
+  // ---- CONFIGURAZIONE ----
+  // '' se la pagina viene servita dal PC (http://IP:8080).
+  // Se la pagina e' salvata sul tablet, scrivi qui l'indirizzo del PC, es. 'http://192.168.1.50:8080'
+  var PC_URL = '';
+  // Coordinate per il meteo quando il PC e' spento (default: Roma)
+  var LAT = 41.89, LON = 12.48;
+  // ------------------------
+
+  var DAYS = ['domenica', 'luned\u00ec', 'marted\u00ec', 'mercoled\u00ec', 'gioved\u00ec', 'venerd\u00ec', 'sabato'];
+  var MONTHS = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+  var busy = false;
+  var lastWx = 0;
+  var mode = 'pc';
+  try { mode = localStorage.getItem('mode') === 'tablet' ? 'tablet' : 'pc'; } catch (e) {}
+
+  var tracks = (typeof PLAYLIST !== 'undefined') ? PLAYLIST : [];
+  var idx = 0;
+  var audio = new Audio();
+
+  function $(id) { return document.getElementById(id); }
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+  function updateClock() {
+    var now = new Date();
+    $('clock').textContent = pad(now.getHours()) + ':' + pad(now.getMinutes());
+    $('date').textContent = DAYS[now.getDay()] + ' ' + now.getDate() + ' ' + MONTHS[now.getMonth()];
+  }
+
+  // ---- Meteo di riserva (Open-Meteo), usato se il PC non risponde ----
+  function wxText(code) {
+    if (code === 0) { return 'Sereno'; }
+    if (code <= 3) { return 'Nuvoloso'; }
+    if (code <= 48) { return 'Nebbia'; }
+    if (code <= 67) { return 'Pioggia'; }
+    if (code <= 77) { return 'Neve'; }
+    if (code <= 82) { return 'Rovesci'; }
+    return 'Temporale';
+  }
+
+  function fetchWeatherFallback() {
+    var now = new Date().getTime();
+    if (now - lastWx < 900000) { return; }
+    lastWx = now;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://api.open-meteo.com/v1/forecast?latitude=' + LAT + '&longitude=' + LON + '&current_weather=true', true);
+    xhr.timeout = 8000;
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== 4) { return; }
+      if (xhr.status === 200) {
+        try {
+          var w = JSON.parse(xhr.responseText).current_weather;
+          $('weather').textContent = Math.round(w.temperature) + '\u00b0C ' + wxText(w.weathercode);
+        } catch (e) {}
+      } else {
+        lastWx = 0;
+        $('weather').textContent = 'Meteo non disponibile';
+      }
+    };
+    xhr.send();
+  }
+
+  // ---- Modalita' PC ----
+  function fetchStatus() {
+    if (busy) { return; }
+    busy = true;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', PC_URL + '/api/status', true);
+    xhr.timeout = 6000;
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== 4) { return; }
+      busy = false;
+      if (xhr.status === 200) {
+        try {
+          var data = JSON.parse(xhr.responseText);
+          $('weather').textContent = data.weather;
+          if (mode === 'pc') {
+            $('title').textContent = data.media.title;
+            $('artist').textContent = data.media.artist;
+          }
+        } catch (e) {}
+      } else {
+        if (mode === 'pc') {
+          $('title').textContent = 'PC non raggiungibile';
+          $('artist').textContent = 'Passa alla modalit\u00e0 TABLET per la musica locale';
+        }
+        fetchWeatherFallback();
+      }
+    };
+    xhr.send();
+  }
+
+  // ---- Modalita' Tablet ----
+  function trackName(path) {
+    var n = path.split('/').pop().replace(/\.[^.]+$/, '');
+    try { n = decodeURIComponent(n); } catch (e) {}
+    return n;
+  }
+
+  function loadTrack(i, autoplay) {
+    if (!tracks.length) {
+      $('title').textContent = 'Nessun brano';
+      $('artist').textContent = 'Metti gli MP3 in musica/ e aggiorna playlist.js';
+      return;
+    }
+    idx = (i + tracks.length) % tracks.length;
+    audio.src = tracks[idx];
+    $('title').textContent = trackName(tracks[idx]);
+    $('artist').textContent = 'Tablet \u2022 ' + (idx + 1) + '/' + tracks.length;
+    if (autoplay) { audio.play(); }
+  }
+
+  audio.onended = function() { loadTrack(idx + 1, true); };
+
+  function tabletCmd(cmd) {
+    if (!tracks.length) { loadTrack(0, false); return; }
+    if (!audio.src) { loadTrack(0, cmd === 'play-pause'); return; }
+    if (cmd === 'next') { loadTrack(idx + 1, true); }
+    else if (cmd === 'previous') { loadTrack(idx - 1, true); }
+    else { if (audio.paused) { audio.play(); } else { audio.pause(); } }
+  }
+
+  // ---- Comuni ----
+  function sendCmd(cmd) {
+    if (mode === 'tablet') { tabletCmd(cmd); return; }
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', PC_URL + '/api/cmd/' + cmd, true);
+    xhr.send();
+    setTimeout(fetchStatus, 300);
+  }
+
+  function applyMode() {
+    $('modeBtn').textContent = mode === 'pc' ? 'PC' : 'TABLET';
+    if (mode === 'tablet') {
+      if (audio.src) {
+        $('title').textContent = trackName(tracks[idx]);
+        $('artist').textContent = 'Tablet \u2022 ' + (idx + 1) + '/' + tracks.length;
+      } else {
+        loadTrack(0, false);
+      }
+    } else {
+      audio.pause();
+      fetchStatus();
+    }
+  }
+
+  function toggleMode() {
+    mode = mode === 'pc' ? 'tablet' : 'pc';
+    try { localStorage.setItem('mode', mode); } catch (e) {}
+    applyMode();
+  }
+
+  function tick() {
+    if (mode === 'pc') { fetchStatus(); }
+    else { fetchWeatherFallback(); }
+  }
+
+  setInterval(updateClock, 1000);
+  setInterval(tick, 3000);
+  updateClock();
+  applyMode();
+  tick();
+</script>
+</body>
+</html>
