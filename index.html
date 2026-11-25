@@ -20,7 +20,7 @@
     -webkit-flex-direction: column; flex-direction: column;
     padding: 20px 24px;
   }
-  #clock { font-size: 96px; font-weight: 300; letter-spacing: 3px; line-height: 1; text-shadow: 0 4px 24px rgba(120,130,255,0.35); }
+  #clock { font-size: 96px; font-weight: 300; letter-spacing: 3px; line-height: 1; text-shadow: 0 0 12px rgba(120,130,255,0.35); }
   #date { font-size: 26px; color: #9fa3c4; margin-top: 10px; text-transform: capitalize; letter-spacing: 1px; }
 
   .weather-box {
@@ -29,7 +29,7 @@
     background: rgba(255,255,255,0.07);
     border: 1px solid rgba(255,255,255,0.10);
     padding: 20px 28px; border-radius: 22px; font-size: 28px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    box-shadow: none;
   }
   .top-right { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
   #hdr { -webkit-justify-content: flex-end; justify-content: flex-end; -webkit-align-items: flex-start; align-items: flex-start; -webkit-flex-wrap: wrap; flex-wrap: wrap; }
@@ -53,7 +53,7 @@
     background: rgba(255,255,255,0.07);
     border: 1px solid rgba(255,255,255,0.10);
     padding: 24px 28px; border-radius: 26px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    box-shadow: none;
   }
   .track {
     display: -webkit-flex; display: flex;
@@ -115,7 +115,7 @@
   .wd.s1 .weather-box { font-size: 22px; padding: 14px; }
   .wd:not(.s3) .media-box { -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: stretch; align-items: stretch; }
   .wd:not(.s3) .controls { margin-top: 14px; -webkit-justify-content: center; justify-content: center; }
-  .wc { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10); border-radius: 22px; padding: 18px 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); overflow: hidden; }
+  .wc { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.10); border-radius: 22px; padding: 18px 24px; box-shadow: none; overflow: hidden; }
   .wc .lb { font-size: 14px; letter-spacing: 3px; color: #7b86ff; font-weight: bold; margin-bottom: 8px; }
   .wc .tx { font-size: 22px; line-height: 1.35; color: #d6d8f0; white-space: pre-wrap; max-height: 110px; overflow: hidden; }
   .ctl {
@@ -486,6 +486,7 @@
 
   function $(id) { return document.getElementById(id); }
   function pad(n) { return n < 10 ? '0' + n : String(n); }
+  function setText(id, t) { var e = $(id); if (e.textContent !== t) { e.textContent = t; } }
 
   // ---- Impostazioni: salvataggio/lettura ----
   function loadCfg() {
@@ -1200,12 +1201,13 @@
     if (level === lastDim) { return; }
     lastDim = level;
     $('dim').style.opacity = String(1 - level / 100);
+    $('dim').style.display = level >= 100 ? 'none' : 'block';
   }
 
   function updateClock() {
     var now = new Date();
-    $('clock').textContent = pad(now.getHours()) + ':' + pad(now.getMinutes());
-    $('date').textContent = DAYS[now.getDay()] + ' ' + now.getDate() + ' ' + MONTHS[now.getMonth()];
+    setText('clock', pad(now.getHours()) + ':' + pad(now.getMinutes()));
+    setText('date', DAYS[now.getDay()] + ' ' + now.getDate() + ' ' + MONTHS[now.getMonth()]);
     if (now.getDate() !== lastCalDay) { lastCalDay = now.getDate(); renderCal(); }
     applyBrightness();
   }
@@ -1257,10 +1259,10 @@
         try {
           var data = JSON.parse(xhr.responseText);
           if (cfg.city) { fetchWeatherFallback(); }
-          else { $('weather').textContent = data.weather; }
+          else { setText('weather', data.weather); }
           if (mode === 'pc') {
-            $('title').textContent = data.media.title;
-            $('artist').textContent = data.media.artist;
+            setText('title', data.media.title);
+            setText('artist', data.media.artist);
           }
         } catch (e) {}
       } else {
